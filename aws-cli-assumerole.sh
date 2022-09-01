@@ -39,6 +39,15 @@ aws sts get-caller-identity
 
 # -------------- 2 --------------
 
+~$ aws sts get-caller-identity
+```
+{
+    "UserId": "xxx:i-node",
+    "Account": "xxx",
+    "Arn": "arn:aws:sts::xxx:assumed-role/node-role/i-node"
+}
+```
+
 # •	Assume the ClusterCreator role
 CREDS=$(aws sts assume-role \
 --role-arn arn:aws:iam::xxx:role/cluster-creator-role  \
@@ -78,6 +87,13 @@ export AWS_SESSION_TOKEN=$(echo $CREDS | cut -d' ' -f3)
     "Action": "sts:AssumeRole"
 }
  ```
-
+~$ aws sts get-caller-identity
+```
+{
+    "UserId": "xxx:20220901000909066",
+    "Account": "xxx",
+    "Arn": "arn:aws:sts::xxx:assumed-role/cluster-creator-role/20220901000909066"
+}
+```
 
 # -------------------------------
