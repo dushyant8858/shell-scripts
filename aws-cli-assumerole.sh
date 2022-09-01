@@ -35,3 +35,49 @@ export AWS_SESSION_TOKEN=$(echo $temp_role | jq -r .Credentials.SessionToken)
 
 aws sts get-caller-identity
 
+
+
+# -------------- 2 --------------
+
+# •	Assume the ClusterCreator role
+CREDS=$(aws sts assume-role \
+--role-arn arn:aws:iam::xxx:role/cluster-creator-role  \
+--role-session-name $(date '+%Y%m%d%H%M%S%3N') \
+--duration-seconds 3600 \
+--query '[Credentials.AccessKeyId,Credentials.SecretAccessKey,Credentials.SessionToken]' \
+--output text)
+export AWS_DEFAULT_REGION="us-west-2"
+export AWS_ACCESS_KEY_ID=$(echo $CREDS | cut -d' ' -f1)
+export AWS_SECRET_ACCESS_KEY=$(echo $CREDS | cut -d' ' -f2)
+export AWS_SESSION_TOKEN=$(echo $CREDS | cut -d' ' -f3)
+
+
+# •	For the assume role to succeed, the `node-role` role should be allowed to assume `cluster-creator-role` role through IAM permissions. Here is the permission set for `node-role` that allows assume role:
+```
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "VisualEditor1",
+            "Effect": "Allow",
+            "Action": "sts:AssumeRole",
+            "Resource": [
+                "arn:aws:iam::xxx:role/cluster-creator-role",
+            ]
+        }
+    ]
+}
+```
+# •	For the assume role to succeed, `cluster-creator-role` role should have trust relationship with `node-role`. Here is the Trust permission for the `cluster-creator-role`:
+```
+{
+    "Effect": "Allow",
+    "Principal": {
+        "AWS": "arn:aws:iam::xxx:role/node-role"
+    },
+    "Action": "sts:AssumeRole"
+}
+ ```
+
+
+# -------------------------------
